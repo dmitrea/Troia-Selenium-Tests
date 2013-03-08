@@ -9,6 +9,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -18,10 +19,10 @@ public class TroiaDemoApp extends Thread {
 
 	private WebDriver driver;
 	private Lock lock = new ReentrantLock();
-	private static int repeat = 10;
+	private static int repeat = 5;
 	private static int initDriverAttempts = 5;
 	private static int initDriverTimeout = 5000;
-	private int defaultPageTimeout = 15000;
+	private int defaultPageTimeout = 30000;
 
 	public int ChooseRandomDataset() {
 		Random randomGenerator = new Random();
@@ -34,7 +35,6 @@ public class TroiaDemoApp extends Thread {
 	}
 	
 	public void waitUntilWebElementIsPresent(final String webElementId){
-		WebElement webElement = null;
 		Wait<WebDriver> wait = new WebDriverWait(driver, defaultPageTimeout);
 		wait.until(new ExpectedCondition<Boolean>() {
 	            public Boolean apply(WebDriver webDriver) {
@@ -44,6 +44,7 @@ public class TroiaDemoApp extends Thread {
 			        });
 	}
 
+	@SuppressWarnings("static-access")
 	public Boolean InitiateDriver() {
 		int noTries = 0;
 		Boolean isDriverInstantiated = false;
@@ -85,7 +86,8 @@ public class TroiaDemoApp extends Thread {
         case 1: 
        	 	return 5;
         case 2:
-       	 	return 82;
+       	 	//return 82; - previous version
+        	return 83;
         default:
        	 	return 0;
 		}
@@ -119,13 +121,12 @@ public class TroiaDemoApp extends Thread {
 					
 					// make some basic checkings
 					String resultsUrl = driver.findElement(By.id("url")).getText();
-
-					System.out.println(resultsUrl);
+					System.out.println("RESULTS URL:" + resultsUrl);
 					Assert.assertTrue(resultsUrl.startsWith("You can see later your results at:"));
 
 					// check the no of predicted labels lines
 					WebElement predictedLabelsTable = driver.findElement(By.id("classes"));
-					int noPredictedLabels = predictedLabelsTable.findElements(By.xpath("div/table/tbody/tr")).size() - 1;
+					int noPredictedLabels = predictedLabelsTable.findElements(By.xpath("div/table/tbody/tr")).size() - 1;	
 					System.out.println(super.toString() + ": noPredictedLabels = " + noPredictedLabels);
 					Assert.assertEquals(noPredictedLabels, GetExpectedNoOfPredictedLabels(dataSetType));
 
@@ -134,6 +135,8 @@ public class TroiaDemoApp extends Thread {
 					int noWorkerStatistics = workerStatisticsTable.findElements(By.xpath("div/table/tbody/tr")).size() - 1;
 					System.out.println(super.toString() + ": noWorkerStatistics = " + noWorkerStatistics);
 					Assert.assertEquals(noWorkerStatistics, GetExpectedNoOfWorkers(dataSetType));
+					
+				
 				}
 				driver.close();
 
